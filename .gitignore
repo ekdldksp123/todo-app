@@ -24,4 +24,6 @@ dist-ssr
 *.sw?
 *.zip
 
+# etc
 yarn.lock
+REQUIREMENT.md
