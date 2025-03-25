@@ -3,9 +3,9 @@ import { SearchTodoForm } from './SearchTodoForm'
 
 const Header: FC = () => {
   return (
-    <section className="grow align-middle">
+    <header className="grow align-middle">
       <SearchTodoForm />
-    </section>
+    </header>
   )
 }
 
