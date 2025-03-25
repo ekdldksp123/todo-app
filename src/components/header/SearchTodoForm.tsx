@@ -13,6 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form'
+import { useSearchParams } from 'react-router-dom'
 
 const formSchema = z.object({
   keyword: z.string().min(1, {
@@ -22,6 +23,7 @@ const formSchema = z.object({
 })
 
 export const SearchTodoForm: FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
