@@ -13,29 +13,40 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
 import { useSearchParams } from 'react-router-dom'
+import { TodoStatusSchema } from '../../types'
 
 const formSchema = z.object({
-  keyword: z.string().min(1, {
-    message: 'keyword must be at least 1 character.',
-  }),
+  keyword: z.string().min(1),
   period: z.string(),
+  status: TodoStatusSchema,
 })
 
 export const SearchTodoForm: FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setSearchParams] = useSearchParams()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       keyword: '',
       period: '',
+      status: 'todo',
     },
   })
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     console.log(values)
+    setSearchParams({ ...values })
+    localStorage.setItem('searchInput', JSON.stringify(values))
   }
 
   return (
@@ -72,6 +83,32 @@ export const SearchTodoForm: FC = () => {
                   <Input className="w-[150px]" type="date" {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex w-[9rem] items-center">
+                <Select onValueChange={field.onChange} {...field}>
+                  <FormControl>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue
+                        placeholder="Select a fruit"
+                        defaultValue={field.value}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Status</SelectLabel>
+                      <SelectItem value="todo">Todo</SelectItem>
+                      <SelectItem value="imminent">Imminent</SelectItem>
+                      <SelectItem value="done">Done</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </FormItem>
             )}
           />
