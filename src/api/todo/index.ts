@@ -1,4 +1,4 @@
-import { ToDo, ToDoRequest } from '../../types/api'
+import { ToDo, ToDoRequest } from '../../types'
 import instance from '../instance'
 
 const API_PREFIX = '/api/todos'
