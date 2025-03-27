@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { FC, useEffect, useLayoutEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { getAllTodos } from '../../api'
-import TaskList from '../../components/pages/Home/TaskList'
-import { TodoForm } from '../../components/pages/Home'
+import { AddTodoForm, TaskList } from '../../components/pages/Home'
 
 const Home: FC = () => {
   const [searchParams] = useSearchParams()
@@ -43,7 +42,7 @@ const Home: FC = () => {
   return (
     <main className="w-full h-full mt-4">
       <section className="flex flex-col gap-4 bg-muted rounded-2xl w-[100%] h-[100%] p-4">
-        <TodoForm type="add" refetch={refetch} />
+        <AddTodoForm refetch={refetch} />
         {data ? (
           <div className="grid grid-cols-3 gap-2">
             <TaskList
