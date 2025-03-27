@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 export * from './api'
 
+export type TodoStatus = 'todo' | 'done' | 'imminent'
+
 export const TodoStatusSchema = z.enum(['todo', 'done', 'imminent'])
 
 export const TodoFormSchema = z.object({

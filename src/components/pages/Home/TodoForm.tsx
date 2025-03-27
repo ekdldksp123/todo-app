@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardFooter } from '../../ui/card'
 import { Button } from '../../ui/button'
 import { useForm } from 'react-hook-form'
@@ -10,7 +10,7 @@ import {
   RefetchQueryFilters,
   useMutation,
 } from '@tanstack/react-query'
-import { postTodo } from '../../../api'
+import { postTodo, updateTodo } from '../../../api'
 import {
   Form,
   FormControl,
@@ -21,20 +21,24 @@ import {
 import { Textarea } from '../../ui/textarea'
 import { Input } from '../../ui/input'
 import { ToDo } from '../../../types'
+import { formatDate } from '../../../libs/utils'
 
 const formSchema = z.object({
   text: z.string(),
   deadline: z.string(),
+  done: z.boolean().optional(),
 })
 
-interface AddTodoFormProps {
+interface TodoFormProps {
+  type: 'add' | 'update'
+  todo?: ToDo
   refetch: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
   ) => Promise<QueryObserverResult<ToDo[] | undefined, unknown>>
 }
 
-export const AddTodoForm: FC<AddTodoFormProps> = ({ refetch }) => {
-  const { mutate } = useMutation({
+const TodoForm: FC<TodoFormProps> = ({ type, todo, refetch }) => {
+  const { mutate: addTodo } = useMutation({
     mutationKey: ['addTodo'],
     mutationFn: postTodo,
     onSuccess: async () => refetch(),
@@ -43,26 +47,69 @@ export const AddTodoForm: FC<AddTodoFormProps> = ({ refetch }) => {
     },
   })
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      text: '',
-      deadline: '',
+  const { mutate: editTodo } = useMutation({
+    mutationKey: ['updateTodo'],
+    mutationFn: updateTodo,
+    onSuccess: async () => refetch(),
+    onError: () => {
+      //TODO toast 띄우기
     },
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log({ values })
-    const { text, deadline } = values
-    mutate({ done: false, text, deadline: new Date(deadline).getTime() })
-  }
+  const initFormValues = useCallback(() => {
+    if (type === 'update' && todo) {
+      return {
+        text: todo.text,
+        deadline: formatDate(todo.deadline),
+        done: todo.done,
+      }
+    }
+
+    return {
+      text: '',
+      deadline: '',
+    }
+  }, [type, todo])
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initFormValues(),
+  })
+
+  const onSubmit = useCallback(
+    (values: z.infer<typeof formSchema>) => {
+      console.log({ values })
+      const { text, deadline } = values
+
+      if (type === 'add') {
+        addTodo({
+          done: false,
+          text,
+          deadline: new Date(deadline).getTime(),
+        })
+      } else if (todo !== undefined) {
+        editTodo({ ...todo, text, deadline: new Date(deadline).getTime() })
+      }
+    },
+    [addTodo, editTodo, todo, type]
+  )
 
   const onCancel = () => {
     form.reset()
   }
 
+  const mainButtonName = useMemo(
+    () => (type === 'add' ? 'Add Todo' : 'Update Todo'),
+    [type]
+  )
+
+  const cardStyles = useMemo(
+    () => (type === 'add' ? 'pt-5 pb-3' : 'border-none shadow-none pt-5 pb-3'),
+    [type]
+  )
+
   return (
-    <Card className="pt-5 pb-3">
+    <Card className={cardStyles}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="flex gap-3 items-start pb-3">
@@ -71,7 +118,7 @@ export const AddTodoForm: FC<AddTodoFormProps> = ({ refetch }) => {
               name="text"
               render={({ field }) => (
                 <FormItem className="grow">
-                  <FormLabel>New Task</FormLabel>
+                  <FormLabel>Task</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>
@@ -95,10 +142,12 @@ export const AddTodoForm: FC<AddTodoFormProps> = ({ refetch }) => {
             <Button variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">Add Todo</Button>
+            <Button type="submit">{mainButtonName}</Button>
           </CardFooter>
         </form>
       </Form>
     </Card>
   )
 }
+
+export default TodoForm
