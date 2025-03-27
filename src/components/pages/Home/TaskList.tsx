@@ -1,4 +1,4 @@
-import { FC, memo, useEffect, useMemo, useState } from 'react'
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { ToDo, TodoStatus } from '../../../types'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import { Button } from '../../ui/button'
@@ -7,7 +7,9 @@ import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
+  useMutation,
 } from '@tanstack/react-query'
+import { deleteTodo } from '../../../api'
 
 interface TaskListProps {
   type: TodoStatus
@@ -29,6 +31,24 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
     }
   }, [type])
 
+  const { mutate } = useMutation({
+    mutationKey: ['deleteTodo'],
+    mutationFn: async (todoIds: number[]) => {
+      // 여러 개의 삭제 요청을 병렬로 실행
+      await Promise.all(todoIds.map((id) => deleteTodo(id)))
+    },
+    onSuccess: async () => refetch(),
+    onError: () => {
+      //TODO toast 띄우기
+    },
+  })
+
+  const onDeleteTodos = useCallback(() => {
+    if (selectedTaskIds.length) {
+      mutate(selectedTaskIds)
+    }
+  }, [mutate, selectedTaskIds])
+
   useEffect(() => {
     console.log({ selectedTaskIds })
   }, [selectedTaskIds])
@@ -38,7 +58,9 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <div className="flex gap-1 justify-end">
-          <Button variant="outline">삭제</Button>
+          <Button variant="outline" onClick={onDeleteTodos}>
+            삭제
+          </Button>
         </div>
       </CardHeader>
 
