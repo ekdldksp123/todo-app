@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo } from 'react'
+import { Dispatch, FC, SetStateAction, useCallback } from 'react'
 import { Card, CardContent, CardFooter } from '../../ui/card'
 import { Button } from '../../ui/button'
 import { useForm } from 'react-hook-form'
@@ -10,7 +10,7 @@ import {
   RefetchQueryFilters,
   useMutation,
 } from '@tanstack/react-query'
-import { postTodo, updateTodo } from '../../../api'
+import { updateTodo } from '../../../api'
 import {
   Form,
   FormControl,
@@ -29,51 +29,38 @@ const formSchema = z.object({
   done: z.boolean().optional(),
 })
 
-interface TodoFormProps {
-  type: 'add' | 'update'
-  todo?: ToDo
+interface UpdateTodoFormProps {
+  todo: ToDo
   refetch: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
   ) => Promise<QueryObserverResult<ToDo[] | undefined, unknown>>
+  setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const TodoForm: FC<TodoFormProps> = ({ type, todo, refetch }) => {
-  const { mutate: addTodo } = useMutation({
-    mutationKey: ['addTodo'],
-    mutationFn: postTodo,
-    onSuccess: async () => refetch(),
-    onError: () => {
-      //TODO toast 띄우기
-    },
-  })
-
-  const { mutate: editTodo } = useMutation({
+const UpdateTodoForm: FC<UpdateTodoFormProps> = ({
+  todo,
+  refetch,
+  setIsOpen,
+}) => {
+  const { mutate } = useMutation({
     mutationKey: ['updateTodo'],
     mutationFn: updateTodo,
-    onSuccess: async () => refetch(),
+    onSuccess: async () => {
+      refetch()
+      setIsOpen(false)
+    },
     onError: () => {
       //TODO toast 띄우기
     },
   })
-
-  const initFormValues = useCallback(() => {
-    if (type === 'update' && todo) {
-      return {
-        text: todo.text,
-        deadline: formatDate(todo.deadline),
-        done: todo.done,
-      }
-    }
-
-    return {
-      text: '',
-      deadline: '',
-    }
-  }, [type, todo])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initFormValues(),
+    defaultValues: {
+      text: todo.text,
+      deadline: formatDate(todo.deadline),
+      done: todo.done,
+    },
   })
 
   const onSubmit = useCallback(
@@ -81,35 +68,17 @@ const TodoForm: FC<TodoFormProps> = ({ type, todo, refetch }) => {
       console.log({ values })
       const { text, deadline } = values
 
-      if (type === 'add') {
-        addTodo({
-          done: false,
-          text,
-          deadline: new Date(deadline).getTime(),
-        })
-      } else if (todo !== undefined) {
-        editTodo({ ...todo, text, deadline: new Date(deadline).getTime() })
-      }
+      mutate({ ...todo, text, deadline: new Date(deadline).getTime() })
     },
-    [addTodo, editTodo, todo, type]
+    [todo, mutate]
   )
 
   const onCancel = () => {
     form.reset()
   }
 
-  const mainButtonName = useMemo(
-    () => (type === 'add' ? 'Add Todo' : 'Update Todo'),
-    [type]
-  )
-
-  const cardStyles = useMemo(
-    () => (type === 'add' ? 'pt-5 pb-3' : 'border-none shadow-none pt-5 pb-3'),
-    [type]
-  )
-
   return (
-    <Card className={cardStyles}>
+    <Card className="border-none shadow-none pt-5 pb-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="flex gap-3 items-start pb-3">
@@ -142,7 +111,7 @@ const TodoForm: FC<TodoFormProps> = ({ type, todo, refetch }) => {
             <Button variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">{mainButtonName}</Button>
+            <Button type="submit">Update Todo</Button>
           </CardFooter>
         </form>
       </Form>
@@ -150,4 +119,4 @@ const TodoForm: FC<TodoFormProps> = ({ type, todo, refetch }) => {
   )
 }
 
-export default TodoForm
+export default UpdateTodoForm

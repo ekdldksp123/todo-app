@@ -4,14 +4,13 @@ import { v4 as uuidv4 } from 'uuid'
 import { Checkbox } from '../../ui/checkbox'
 import { formatDate } from '../../../libs/utils'
 import { Button } from '../../ui/button'
-import { Input } from '../../ui/input'
-import { Dialog, DialogContent, DialogTrigger } from '../../ui/dialog'
-import TodoForm from './TodoForm'
+import { Dialog, DialogContent } from '../../ui/dialog'
 import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
 } from '@tanstack/react-query'
+import UpdateTodoForm from './UpdateTodoForm'
 
 interface TaskProps {
   task: ToDo
@@ -24,6 +23,8 @@ interface TaskProps {
 const Task: FC<TaskProps> = ({ task, setSelectedTaskIds, refetch }) => {
   const { id, text, deadline } = task
   const taskId = useMemo(() => id.toString(), [id])
+
+  const [isOpen, setIsOpen] = useState<boolean>(false)
 
   return (
     <div
@@ -56,20 +57,23 @@ const Task: FC<TaskProps> = ({ task, setSelectedTaskIds, refetch }) => {
       <div className="grow" />
       <small> {formatDate(deadline)}</small>
       <div className="flex items-center gap-1 ml-2">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="secondary" size="sm" className="shadow-md">
-              수정
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="p-0 min-w-3xl">
-            <TodoForm type="update" todo={task} refetch={refetch} />
-          </DialogContent>
-        </Dialog>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="shadow-md"
+          onClick={() => setIsOpen(true)}
+        >
+          수정
+        </Button>
         <Button variant="secondary" size="sm" className="shadow-md">
           완료
         </Button>
       </div>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="p-0 min-w-3xl">
+          <UpdateTodoForm todo={task} refetch={refetch} setIsOpen={setIsOpen} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
