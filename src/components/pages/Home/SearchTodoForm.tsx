@@ -3,23 +3,22 @@ import { SearchIcon } from 'lucide-react'
 import { FC, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Input } from '../../ui/input'
-import { Button } from '../../ui'
 import {
+  Button,
+  Input,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from '../../ui/form'
-import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../ui/select'
+} from '../../ui'
+
 import { ToDo, TodoStatusSchema } from '../../../types'
 import {
   QueryObserverResult,

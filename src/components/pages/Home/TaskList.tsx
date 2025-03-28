@@ -2,7 +2,6 @@ import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { ToDo, TodoStatus } from '../../../types'
 import {
   Button,
-  PaginationButton,
   Select,
   SelectContent,
   SelectGroup,
@@ -15,6 +14,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  Pagination,
 } from '../../ui'
 import Task from './Task'
 import {
@@ -25,7 +25,6 @@ import {
 } from '@tanstack/react-query'
 import { deleteTodo } from '../../../api'
 import { usePagination } from '../../../hooks'
-
 import { cn } from '../../../libs/utils'
 
 interface TaskListProps {
@@ -46,7 +45,6 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
     goToNextGroup,
     totalPages,
     currentPage,
-    pageSize,
     startPage,
     endPage,
   } = usePagination({
@@ -114,7 +112,7 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
       </CardHeader>
 
       <CardContent>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 h-[25rem] overflow-y-auto">
           {paginatedData.map((task) => (
             <Task
               task={task}
@@ -125,50 +123,15 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
         </div>
       </CardContent>
       <CardFooter className="flex items-center justify-center">
-        {totalPages ? (
-          <footer className="absolute bottom-0">
-            <div className="flex justify-between items-center py-2 px-6">
-              <PaginationButton
-                type="prev-more"
-                onClick={goToPrevGroup}
-                disabled={startPage === 1}
-              />
-              <PaginationButton
-                type="prev"
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-              />
-
-              {Array.from(
-                { length: endPage - startPage + 1 },
-                (_, i) => startPage + i
-              ).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => goToPage(page)}
-                  className={`px-3 py-1 rounded-md cursor-pointer ${
-                    currentPage === page
-                      ? 'text-white'
-                      : 'text-secondary-foreground'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <PaginationButton
-                type="next"
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              />
-              <PaginationButton
-                type="next-more"
-                onClick={goToNextGroup}
-                disabled={endPage === totalPages}
-              />
-            </div>
-          </footer>
-        ) : null}
+        <Pagination
+          startPage={startPage}
+          endPage={endPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          goToPage={goToPage}
+          goToNextGroup={goToNextGroup}
+          goToPrevGroup={goToPrevGroup}
+        />
       </CardFooter>
     </Card>
   )

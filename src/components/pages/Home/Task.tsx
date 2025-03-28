@@ -1,10 +1,8 @@
 import { Dispatch, FC, SetStateAction, memo, useMemo, useState } from 'react'
 import { ToDo } from '../../../types'
 import { v4 as uuidv4 } from 'uuid'
-import { Checkbox } from '../../ui/checkbox'
 import { formatDate } from '../../../libs/utils'
-import { Button } from '../../ui'
-import { Dialog, DialogContent } from '../../ui/dialog'
+import { Button, Checkbox, Dialog, DialogContent } from '../../ui'
 import {
   QueryObserverResult,
   RefetchOptions,

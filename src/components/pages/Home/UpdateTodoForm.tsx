@@ -1,6 +1,17 @@
 import { Dispatch, FC, SetStateAction, useCallback } from 'react'
-import { Card, CardContent, CardFooter } from '../../ui/card'
-import { Button } from '../../ui'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  Button,
+  Input,
+  Textarea,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '../../ui'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -11,15 +22,6 @@ import {
   useMutation,
 } from '@tanstack/react-query'
 import { updateTodo } from '../../../api'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '../../ui/form'
-import { Textarea } from '../../ui/textarea'
-import { Input } from '../../ui/input'
 import { ToDo } from '../../../types'
 import { formatDate } from '../../../libs/utils'
 
