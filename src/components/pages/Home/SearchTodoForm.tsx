@@ -57,12 +57,22 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
     defaultValues: initFormValues(),
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // console.log(values)
-    // setSearchParams({ ...values })
-    localStorage.setItem('searchInput', JSON.stringify(values))
-    refetch()
-  }
+  const onSubmit = useCallback(
+    (values: z.infer<typeof formSchema>) => {
+      // console.log(values)
+      // setSearchParams({ ...values })
+      localStorage.setItem('searchInput', JSON.stringify(values))
+      refetch()
+    },
+    [refetch]
+  )
+
+  const onReset = useCallback(() => {
+    localStorage.removeItem('searchInput')
+    form.setValue('keyword', undefined)
+    form.setValue('period', undefined)
+    form.setValue('status', undefined)
+  }, [form])
 
   return (
     <div className="flex items-center w-full p-4 bg-white shadow-md rounded-2xl">
@@ -123,6 +133,9 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
             )}
           />
           <Button type="submit">Search</Button>
+          <Button variant="outline" onClick={onReset}>
+            Reset
+          </Button>
         </form>
       </Form>
     </div>
