@@ -42,7 +42,14 @@ const Task: FC<TaskProps> = ({ task, setSelectedTaskIds, refetch }) => {
       setIsOpen(false)
     },
     onError: () => {
-      //TODO toast 띄우기
+      toast('오류 발생', {
+        description:
+          '데이터를 수정하는 데 문제가 발생했습니다. 잠시후 다시 시도해주세요.',
+        action: {
+          label: '확인',
+          onClick: () => console.log('Confirm'),
+        },
+      })
     },
   })
 
