@@ -30,16 +30,16 @@ export const isWithinThreeDays = (deadline: number): boolean => {
 
 export const getDummyTodos = (): ToDo[] => {
   const dummyTodos: ToDo[] = []
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 250; i++) {
     const today = new Date()
-    if (i < 50) {
+    if (i < 75) {
       dummyTodos.push({
         id: i + 1,
         text: `test data ${i + 1}`,
         done: true,
         deadline: today.getTime(),
       })
-    } else if (i < 75) {
+    } else if (i < 170) {
       today.setDate(today.getDate() + 3)
       dummyTodos.push({
         id: i + 1,

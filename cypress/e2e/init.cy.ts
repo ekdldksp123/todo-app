@@ -27,7 +27,7 @@ describe('todos 데이터 및 검색 조건 초기화', () => {
     cy.window().then((win) => {
       const data = win.localStorage.getItem('todos')
       expect(data).to.be.not.null
-      if (data) expect(JSON.parse(data)).to.have.length(50)
+      if (data) expect(JSON.parse(data)).to.have.length(250)
     })
   })
 

@@ -127,7 +127,7 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
       <CardFooter className="flex items-center justify-center">
         {totalPages ? (
           <footer className="absolute bottom-0">
-            <div className="flex gap-2 items-center py-2">
+            <div className="flex justify-between items-center py-2 px-6">
               <PaginationButton
                 type="prev-more"
                 onClick={goToPrevGroup}
@@ -146,7 +146,7 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
                 <button
                   key={page}
                   onClick={() => goToPage(page)}
-                  className={`px-3 py-1 rounded-md ${
+                  className={`px-3 py-1 rounded-md cursor-pointer ${
                     currentPage === page
                       ? 'text-white'
                       : 'text-secondary-foreground'
