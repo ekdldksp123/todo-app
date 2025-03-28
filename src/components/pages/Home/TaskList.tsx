@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, memo, useCallback, useMemo, useState } from 'react'
 import { ToDo, TodoStatus } from '../../../types'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import { Button } from '../../ui/button'
@@ -49,9 +49,9 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
     }
   }, [mutate, selectedTaskIds])
 
-  useEffect(() => {
-    console.log({ selectedTaskIds })
-  }, [selectedTaskIds])
+  //   useEffect(() => {
+  //     console.log({ selectedTaskIds })
+  //   }, [selectedTaskIds])
 
   return (
     <Card className={background}>

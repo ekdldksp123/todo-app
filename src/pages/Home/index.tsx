@@ -1,73 +1,105 @@
 import { useQuery } from '@tanstack/react-query'
-import { FC, useEffect, useLayoutEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { FC, useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 import { getAllTodos } from '../../api'
 import { AddTodoForm, TaskList } from '../../components/pages/Home'
-import { isInDeadline, isWithinThreeDays, parseDate } from '../../libs/utils'
+import {
+  isWithinThreeDays,
+  parseDate,
+  sortTodosByDeadline,
+} from '../../libs/utils'
+import { SearchTodoForm } from '../../components/pages/Home/SearchTodoForm'
 
 const Home: FC = () => {
-  const [searchParams] = useSearchParams()
+  const filterTodos = useCallback(async () => {
+    const data = (await getAllTodos()) ?? []
+    // 마감 순으로 정렬
+    const todos = sortTodosByDeadline(data)
+    const searchInput = localStorage.getItem('searchInput')
 
-  const filterTodos = async () => {
-    const todos = (await getAllTodos()) ?? []
-    if (!todos.length) return todos
+    console.log({ todos, searchInput })
 
-    if (searchParams) {
-      const { keyword, status, period } = searchParams
-      return todos.filter((todo) => {
-        // 키워드 필터
-        const matchesKeyword = !keyword ? true : todo.text.includes(keyword)
+    if (!todos.length || !searchInput) return todos
 
-        let matchesStatus = true
-        if (status === 'done') {
-          matchesStatus = todo.done === true
-        } else if (status === 'imminent') {
-          matchesStatus = isWithinThreeDays(period)
-        } else if (status === 'todo') {
-          matchesStatus = todo.done === false
+    // const { keyword, status, period } = JSON.parse(searchInput)
+    // console.log({ keyword, status, period })
+    const condition = JSON.parse(searchInput)
+
+    const keyword = condition.keyword?.toLowerCase() ?? null
+    const periodTime = condition.period
+      ? parseDate(condition.period).getTime()
+      : null
+    const status = condition.status ?? null
+
+    console.log({ keyword, periodTime, status })
+
+    return todos.filter(({ text, deadline, done }) => {
+      // 키워드 필터링 (대소문자 무시)
+      if (keyword && !text.toLowerCase().includes(keyword.toLowerCase())) {
+        return false
+      }
+      // 상태 필터링
+      if (status) {
+        if (status === 'done' && done !== true) {
+          return false
+        } else if (status === 'imminent' && !isWithinThreeDays(deadline)) {
+          return false
+        } else if (status === 'todo' && done !== false) {
+          return false
         }
+      }
 
-        const matchesPeriod = !period
-          ? true
-          : isInDeadline(parseDate(period), new Date(todo.deadline))
-        return matchesKeyword && matchesStatus && matchesPeriod
-      })
-    }
-    return todos
-  }
+      // 기간 필터링
+      if (periodTime && new Date(deadline).getTime() > periodTime) return false
+
+      return true
+    })
+  }, [])
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['todos', searchParams],
+    queryKey: ['getTodos'],
     queryFn: filterTodos,
+    enabled: false,
   })
-
-  useEffect(() => {
-    console.log({ data })
-  }, [data])
-
-  // useLayoutEffect(() => {
-  //   if (searchParams) {
-  //     const { keyword, period, status } = searchParams
-  //   }
-  // }, [])
 
   // if(isLoading) {
 
   // }
 
+  useLayoutEffect(() => {
+    refetch()
+  }, [refetch])
+
+  const { todo, imminent, done } = useMemo(() => {
+    const todo = []
+    const imminent = []
+    const done = []
+    if (data?.length) {
+      for (const task of data) {
+        if (task.done) {
+          done.push(task)
+        } else if (isWithinThreeDays(task.deadline)) {
+          imminent.push(task)
+        } else {
+          todo.push(task)
+        }
+      }
+    }
+
+    return { todo, imminent, done }
+  }, [data])
+
   return (
-    <main className="w-full h-full mt-4">
+    <main className="w-full h-full flex flex-col gap-4">
+      <header className="grow align-middle">
+        <SearchTodoForm refetch={refetch} />
+      </header>
       <section className="flex flex-col gap-4 bg-muted rounded-2xl w-[100%] h-[100%] p-4">
         <AddTodoForm refetch={refetch} />
         {data ? (
           <div className="grid grid-cols-3 gap-2">
-            <TaskList
-              type="todo"
-              tasks={data.filter(({ done }) => done === false)}
-              refetch={refetch}
-            />
-            <TaskList type="imminent" tasks={[]} refetch={refetch} />
-            <TaskList type="done" tasks={[]} refetch={refetch} />
+            <TaskList type="todo" tasks={todo} refetch={refetch} />
+            <TaskList type="imminent" tasks={imminent} refetch={refetch} />
+            <TaskList type="done" tasks={done} refetch={refetch} />
           </div>
         ) : null}
       </section>

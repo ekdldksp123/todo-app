@@ -1,11 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SearchIcon } from 'lucide-react'
-import { FC } from 'react'
+import { FC, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '../ui/form'
+import { Input } from '../../ui/input'
+import { Button } from '../../ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '../../ui/form'
 import {
   Select,
   SelectContent,
@@ -13,9 +19,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select'
-import { useSearchParams } from 'react-router-dom'
-import { TodoStatusSchema } from '../../types'
+} from '../../ui/select'
+import { ToDo, TodoStatusSchema } from '../../../types'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from '@tanstack/react-query'
 
 const formSchema = z.object({
   keyword: z.string().optional(),
@@ -23,17 +33,35 @@ const formSchema = z.object({
   status: TodoStatusSchema.optional(),
 })
 
-export const SearchTodoForm: FC = () => {
+interface SearchTodoFormProps {
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<ToDo[] | undefined, unknown>>
+}
+
+export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setSearchParams] = useSearchParams()
+  // const [_, setSearchParams] = useSearchParams()
+
+  const initFormValues = useCallback(() => {
+    const searchInput = localStorage.getItem('searchInput')
+    if (searchInput) {
+      const { keyword, status, period } = JSON.parse(searchInput)
+
+      return { keyword, status, period }
+    }
+  }, [])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: initFormValues(),
   })
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values)
-    setSearchParams({ ...values })
+    // console.log(values)
+    // setSearchParams({ ...values })
     localStorage.setItem('searchInput', JSON.stringify(values))
+    refetch()
   }
 
   return (
