@@ -31,7 +31,6 @@ export const getSingleTodo = async (id: number) => {
 export const postTodo = async (newTodo: ToDoRequest) => {
   try {
     const { data } = await instance.post(API_PREFIX, newTodo)
-    console.log({ data })
     return (data as unknown as APIResponse<ToDo[]>).data
   } catch (error) {
     console.error(error)
