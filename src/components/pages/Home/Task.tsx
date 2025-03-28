@@ -1,4 +1,12 @@
-import { Dispatch, FC, SetStateAction, memo, useMemo, useState } from 'react'
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  memo,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
 import { ToDo } from '../../../types'
 import { v4 as uuidv4 } from 'uuid'
 import { formatDate } from '../../../libs/utils'
@@ -7,8 +15,10 @@ import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
+  useMutation,
 } from '@tanstack/react-query'
 import UpdateTodoForm from './UpdateTodoForm'
+import { updateTodo } from '../../../api'
 
 interface TaskProps {
   task: ToDo
@@ -23,6 +33,23 @@ const Task: FC<TaskProps> = ({ task, setSelectedTaskIds, refetch }) => {
   const taskId = useMemo(() => id.toString(), [id])
 
   const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  const { mutate } = useMutation({
+    mutationKey: ['updateTodo'],
+    mutationFn: updateTodo,
+    onSuccess: async () => {
+      refetch()
+      setIsOpen(false)
+    },
+    onError: () => {
+      //TODO toast 띄우기
+    },
+  })
+
+  const handleCompleteTodo = useCallback(() => {
+    mutate({ ...task, done: true })
+    refetch()
+  }, [mutate, refetch, task])
 
   return (
     <div
@@ -63,7 +90,12 @@ const Task: FC<TaskProps> = ({ task, setSelectedTaskIds, refetch }) => {
         >
           수정
         </Button>
-        <Button variant="secondary" size="sm" className="shadow-md">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="shadow-md"
+          onClick={handleCompleteTodo}
+        >
           완료
         </Button>
       </div>
