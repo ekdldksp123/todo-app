@@ -1,7 +1,12 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
-
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react'
 import { cn } from '@/libs/utils'
 
 const buttonVariants = cva(
@@ -56,4 +61,75 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+const MemoizedButton = React.memo(Button)
+
+function PaginationIcon({
+  disabled,
+  onClick,
+  className,
+  type,
+  ...props
+}: React.ComponentProps<'svg'> & {
+  disabled: boolean
+  type: 'prev' | 'prev-more' | 'next' | 'next-more'
+}) {
+  const renderIcon = React.useMemo(() => {
+    switch (type) {
+      case 'prev':
+        return (
+          <ChevronLeft
+            {...props}
+            className={cn(
+              className,
+              'hover:text-white cursor-pointer',
+              disabled && 'opacity-50'
+            )}
+            onClick={onClick}
+          />
+        )
+      case 'next':
+        return (
+          <ChevronRight
+            {...props}
+            className={cn(
+              className,
+              'hover:text-white cursor-pointer',
+              disabled && 'opacity-50'
+            )}
+            onClick={onClick}
+          />
+        )
+      case 'prev-more':
+        return (
+          <ChevronsLeft
+            {...props}
+            className={cn(
+              className,
+              'hover:text-white cursor-pointer',
+              disabled && 'opacity-50'
+            )}
+            onClick={onClick}
+          />
+        )
+      case 'next-more':
+        return (
+          <ChevronsRight
+            {...props}
+            className={cn(
+              className,
+              'hover:text-white cursor-pointer',
+              disabled && 'opacity-50'
+            )}
+            onClick={onClick}
+          />
+        )
+      default:
+        return null
+    }
+  }, [type, props, className, disabled, onClick])
+  return <button disabled={disabled}>{renderIcon}</button>
+}
+
+const MemoizedPaginationButton = React.memo(PaginationIcon)
+
+export { MemoizedButton, buttonVariants, MemoizedPaginationButton }

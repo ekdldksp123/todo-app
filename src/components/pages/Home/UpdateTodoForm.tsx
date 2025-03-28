@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction, useCallback } from 'react'
 import { Card, CardContent, CardFooter } from '../../ui/card'
-import { Button } from '../../ui/button'
+import { Button } from '../../ui'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'

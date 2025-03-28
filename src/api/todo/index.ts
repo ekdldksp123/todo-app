@@ -6,7 +6,12 @@ const API_PREFIX = '/api/todos'
 export const getAllTodos = async () => {
   try {
     const { data } = await instance.get(API_PREFIX)
-    return (data as unknown as APIResponse<ToDo[]>).data
+    const todos = (data as unknown as APIResponse<ToDo[]>).data
+    //마감일 순으로 정렬
+    if (todos) {
+      todos.sort((a, b) => a.deadline - b.deadline)
+    }
+    return todos
   } catch (error) {
     console.error(error)
     throw error

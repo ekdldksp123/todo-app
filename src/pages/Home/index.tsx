@@ -1,27 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
-import { FC, useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
+import { FC, useCallback, useLayoutEffect, useMemo } from 'react'
 import { getAllTodos } from '../../api'
 import { AddTodoForm, TaskList } from '../../components/pages/Home'
-import {
-  isWithinThreeDays,
-  parseDate,
-  sortTodosByDeadline,
-} from '../../libs/utils'
+import { isWithinThreeDays, parseDate } from '../../libs/utils'
 import { SearchTodoForm } from '../../components/pages/Home/SearchTodoForm'
 
 const Home: FC = () => {
   const filterTodos = useCallback(async () => {
     const data = (await getAllTodos()) ?? []
-    // 마감 순으로 정렬
-    const todos = sortTodosByDeadline(data)
     const searchInput = localStorage.getItem('searchInput')
 
-    console.log({ todos, searchInput })
+    console.log({ data, searchInput })
 
-    if (!todos.length || !searchInput) return todos
+    if (!data.length || !searchInput) return data
 
-    // const { keyword, status, period } = JSON.parse(searchInput)
-    // console.log({ keyword, status, period })
     const condition = JSON.parse(searchInput)
 
     const keyword = condition.keyword?.toLowerCase() ?? null
@@ -32,7 +24,7 @@ const Home: FC = () => {
 
     console.log({ keyword, periodTime, status })
 
-    return todos.filter(({ text, deadline, done }) => {
+    return data.filter(({ text, deadline, done }) => {
       // 키워드 필터링 (대소문자 무시)
       if (keyword && !text.toLowerCase().includes(keyword.toLowerCase())) {
         return false

@@ -1,7 +1,21 @@
-import { FC, memo, useCallback, useMemo, useState } from 'react'
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { ToDo, TodoStatus } from '../../../types'
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
-import { Button } from '../../ui/button'
+import {
+  Button,
+  PaginationButton,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../../ui'
 import Task from './Task'
 import {
   QueryObserverResult,
@@ -10,6 +24,9 @@ import {
   useMutation,
 } from '@tanstack/react-query'
 import { deleteTodo } from '../../../api'
+import { usePagination } from '../../../hooks'
+
+import { cn } from '../../../libs/utils'
 
 interface TaskListProps {
   type: TodoStatus
@@ -20,6 +37,22 @@ interface TaskListProps {
 }
 const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([])
+
+  const {
+    paginatedData,
+    goToPage,
+    changePageSize,
+    goToPrevGroup,
+    goToNextGroup,
+    totalPages,
+    currentPage,
+    pageSize,
+    startPage,
+    endPage,
+  } = usePagination({
+    data: tasks,
+  })
+
   const { title, background } = useMemo(() => {
     switch (type) {
       case 'todo':
@@ -49,15 +82,31 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
     }
   }, [mutate, selectedTaskIds])
 
-  //   useEffect(() => {
-  //     console.log({ selectedTaskIds })
-  //   }, [selectedTaskIds])
+  useEffect(() => {
+    console.log({ currentPage, totalPages })
+  }, [currentPage, totalPages])
 
   return (
-    <Card className={background}>
+    <Card className={cn(background, 'relative')}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <div className="flex gap-1 justify-end">
+        <div className="flex gap-1 justify-between">
+          <Select
+            defaultValue="10"
+            onValueChange={(v) => changePageSize(Number(v))}
+          >
+            <SelectTrigger className="w-[9rem] bg-white">
+              <SelectValue placeholder="페이지당 항목수" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectGroup>
+                <SelectLabel>페이지당 항목수</SelectLabel>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <Button variant="outline" onClick={onDeleteTodos}>
             삭제
           </Button>
@@ -66,7 +115,7 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
 
       <CardContent>
         <div className="flex flex-col gap-2">
-          {tasks.map((task) => (
+          {paginatedData.map((task) => (
             <Task
               task={task}
               refetch={refetch}
@@ -75,6 +124,52 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
           ))}
         </div>
       </CardContent>
+      <CardFooter className="flex items-center justify-center">
+        {totalPages ? (
+          <footer className="absolute bottom-0">
+            <div className="flex gap-2 items-center py-2">
+              <PaginationButton
+                type="prev-more"
+                onClick={goToPrevGroup}
+                disabled={startPage === 1}
+              />
+              <PaginationButton
+                type="prev"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              />
+
+              {Array.from(
+                { length: endPage - startPage + 1 },
+                (_, i) => startPage + i
+              ).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === page
+                      ? 'text-white'
+                      : 'text-secondary-foreground'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <PaginationButton
+                type="next"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              />
+              <PaginationButton
+                type="next-more"
+                onClick={goToNextGroup}
+                disabled={endPage === totalPages}
+              />
+            </div>
+          </footer>
+        ) : null}
+      </CardFooter>
     </Card>
   )
 }

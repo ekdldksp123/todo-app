@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { ToDo } from '../types'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -26,13 +25,4 @@ export const isWithinThreeDays = (deadline: number): boolean => {
   const threeDaysLater = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
 
   return deadlineDate <= threeDaysLater
-}
-
-export const isInDeadline = (date: Date, deadline: Date): boolean => {
-  return date <= deadline
-}
-
-export const sortTodosByDeadline = (todos: ToDo[]): ToDo[] => {
-  if (!todos.length) return todos
-  return todos.slice().sort((a, b) => a.deadline - b.deadline)
 }
