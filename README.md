@@ -1,8 +1,9 @@
 # To-Do LIst Application
 
 ## Structure
+```plaintext
 📦 TODO-APP
-├── 📂 cypress (e2e 테스트)
+├── 📂 cypress (테스트)
 ├── 📂 src
 │   ├── 📂 api (axios 요청)
 │   ├── 📂 components
@@ -17,6 +18,8 @@
 ├── package.json
 ├── ...
 ├── README.md
+```
+
 
 ## Stack
 - React 18.3.1
