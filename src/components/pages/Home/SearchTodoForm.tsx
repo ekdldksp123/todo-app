@@ -40,7 +40,6 @@ interface SearchTodoFormProps {
 
 export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  // const [_, setSearchParams] = useSearchParams()
 
   const initFormValues = useCallback(() => {
     const searchInput = localStorage.getItem('searchInput')
@@ -58,20 +57,11 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
 
   const onSubmit = useCallback(
     (values: z.infer<typeof formSchema>) => {
-      // console.log(values)
-      // setSearchParams({ ...values })
       localStorage.setItem('searchInput', JSON.stringify(values))
       refetch()
     },
     [refetch]
   )
-
-  const onReset = useCallback(() => {
-    localStorage.removeItem('searchInput')
-    form.setValue('keyword', undefined)
-    form.setValue('period', undefined)
-    form.setValue('status', undefined)
-  }, [form])
 
   return (
     <div className="flex items-center w-full p-4 bg-white shadow-md rounded-2xl">
@@ -90,6 +80,7 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
                 </FormLabel>
                 <FormControl>
                   <Input
+                    id="keyword"
                     placeholder="To-Do 검색"
                     className="w-[100%]"
                     {...field}
@@ -104,7 +95,12 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
             render={({ field }) => (
               <FormItem className="flex w-[9rem] items-center">
                 <FormControl>
-                  <Input className="w-[150px]" type="date" {...field} />
+                  <Input
+                    id="period"
+                    className="w-[150px]"
+                    type="date"
+                    {...field}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -117,11 +113,12 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
                 <Select onValueChange={field.onChange} {...field}>
                   <FormControl>
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Status" />
+                      <SelectValue id="status" placeholder="Status" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     <SelectGroup>
+                      <SelectItem value="all">All</SelectItem>
                       <SelectItem value="todo">Todo</SelectItem>
                       <SelectItem value="imminent">Imminent</SelectItem>
                       <SelectItem value="done">Done</SelectItem>
@@ -132,9 +129,6 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
             )}
           />
           <Button type="submit">Search</Button>
-          <Button variant="outline" onClick={onReset}>
-            Reset
-          </Button>
         </form>
       </Form>
     </div>

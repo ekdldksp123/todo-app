@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { FC, useCallback, useLayoutEffect, useMemo } from 'react'
+import { FC, useCallback, useMemo } from 'react'
 import { getAllTodos } from '../../api'
 import { AddTodoForm, TaskList } from '../../components/pages/Home'
 import { isWithinThreeDays, parseDate } from '../../libs/utils'
@@ -11,7 +11,7 @@ const Home: FC = () => {
     const data = (await getAllTodos()) ?? []
     const searchInput = localStorage.getItem('searchInput')
 
-    console.log({ data, searchInput })
+    // console.log({ data, searchInput })
 
     if (!data.length || !searchInput) return data
 
@@ -23,16 +23,20 @@ const Home: FC = () => {
       : null
     const status = condition.status ?? null
 
-    console.log({ keyword, periodTime, status })
+    // console.log({ keyword, periodTime, status })
 
     return data.filter(({ text, deadline, done }) => {
       // 키워드 필터링 (대소문자 무시)
       if (keyword && !text.toLowerCase().includes(keyword.toLowerCase())) {
         return false
       }
+      // 기간 필터링
+      if (periodTime && new Date(deadline).getTime() > periodTime) return false
       // 상태 필터링
       if (status) {
-        if (status === 'done' && done !== true) {
+        if (status === 'all') {
+          return true
+        } else if (status === 'done' && done !== true) {
           return false
         } else if (status === 'imminent' && !isWithinThreeDays(deadline)) {
           return false
@@ -40,10 +44,6 @@ const Home: FC = () => {
           return false
         }
       }
-
-      // 기간 필터링
-      if (periodTime && new Date(deadline).getTime() > periodTime) return false
-
       return true
     })
   }, [])
@@ -51,12 +51,7 @@ const Home: FC = () => {
   const { data, isError, refetch } = useQuery({
     queryKey: ['getTodos'],
     queryFn: filterTodos,
-    enabled: false,
   })
-
-  useLayoutEffect(() => {
-    refetch()
-  }, [refetch])
 
   const { todo, imminent, done } = useMemo(() => {
     const todo = []
