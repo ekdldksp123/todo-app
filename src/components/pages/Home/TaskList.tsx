@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, memo, useCallback, useMemo, useState } from 'react'
 import { ToDo, TodoStatus } from '../../../types'
 import {
   Button,
@@ -26,6 +26,7 @@ import {
 import { deleteTodo } from '../../../api'
 import { usePagination } from '../../../hooks'
 import { cn } from '../../../libs/utils'
+import { toast } from 'sonner'
 
 interface TaskListProps {
   type: TodoStatus
@@ -70,7 +71,14 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
     },
     onSuccess: async () => refetch(),
     onError: () => {
-      //TODO toast 띄우기
+      toast('오류 발생', {
+        description:
+          '데이터를 삭제하는 데 문제가 발생했습니다. 잠시후 다시 시도해주세요.',
+        action: {
+          label: '확인',
+          onClick: () => console.log('Confirm'),
+        },
+      })
     },
   })
 
@@ -79,10 +87,6 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
       mutate(selectedTaskIds)
     }
   }, [mutate, selectedTaskIds])
-
-  useEffect(() => {
-    console.log({ currentPage, totalPages })
-  }, [currentPage, totalPages])
 
   return (
     <Card className={cn(background, 'relative')}>

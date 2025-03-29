@@ -25,6 +25,7 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
 } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 
 const formSchema = z.object({
   keyword: z.string().optional(),
@@ -39,7 +40,7 @@ interface SearchTodoFormProps {
 }
 
 export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const [_, setSearchParams] = useSearchParams()
 
   const initFormValues = useCallback(() => {
     const searchInput = localStorage.getItem('searchInput')
@@ -57,6 +58,7 @@ export const SearchTodoForm: FC<SearchTodoFormProps> = ({ refetch }) => {
 
   const onSubmit = useCallback(
     (values: z.infer<typeof formSchema>) => {
+      // setSearchParams(values)
       localStorage.setItem('searchInput', JSON.stringify(values))
       refetch()
     },

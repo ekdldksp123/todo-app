@@ -5,10 +5,10 @@ type UsePaginationProps<T> = {
   pageGroupSize?: number
 }
 
-export function usePagination<T>({
+export const usePagination = <T>({
   data,
   pageGroupSize = 5,
-}: UsePaginationProps<T>) {
+}: UsePaginationProps<T>) => {
   const [page, setPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(10)
 
