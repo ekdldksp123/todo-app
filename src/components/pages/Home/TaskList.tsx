@@ -69,7 +69,10 @@ const TaskList: FC<TaskListProps> = ({ type, tasks, refetch }) => {
       // 여러 개의 삭제 요청을 병렬로 실행
       await Promise.all(todoIds.map((id) => deleteTodo(id)))
     },
-    onSuccess: async () => refetch(),
+    onSuccess: async () => {
+      setSelectedTaskIds([])
+      refetch()
+    },
     onError: () => {
       toast('오류 발생', {
         description:
