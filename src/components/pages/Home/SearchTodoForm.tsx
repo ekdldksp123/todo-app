@@ -25,7 +25,6 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
 } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router-dom'
 
 const formSchema = z.object({
   keyword: z.string().optional(),

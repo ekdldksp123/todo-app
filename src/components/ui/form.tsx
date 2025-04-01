@@ -85,12 +85,13 @@ function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
   )
 }
 
-function FormLabel({
-  className,
-  ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
-  const { error, formItemId } = useFormField()
+type FormLabelProps = Omit<
+  React.ComponentProps<typeof LabelPrimitive.Root>,
+  'ref'
+>
 
+function FormLabel({ className, ...props }: FormLabelProps) {
+  const { error, formItemId } = useFormField()
   return (
     <Label
       data-slot="form-label"
