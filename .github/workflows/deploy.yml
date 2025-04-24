@@ -1,7 +1,7 @@
 name: Deploy
-# on:
-#   pull_request: # 원하는 경우 선택
-#     branches: ["main"] # 원하는 branch 선택
+on:
+  push: # 원하는 경우 선택
+    branches: ["main"] # 원하는 branch 선택
 permissions:
   contents: write
 jobs:
