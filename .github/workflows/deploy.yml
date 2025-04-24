@@ -1,0 +1,26 @@
+name: Deploy
+# on:
+#   pull_request: # 원하는 경우 선택
+#     branches: ["main"] # 원하는 branch 선택
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Install and Build
+        run: |
+          npm ci
+          npm run build
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }} # repo 권한 github token 주시면 됩니다.
+          branch: gh-pages # 배포할 branch 설정하면 됩니다. gh-pages가 defaylt 값으로 설정되어 있습니다.
+          folder: dist # build dir 반드시 지정해야 합니다.
+          clean: true
