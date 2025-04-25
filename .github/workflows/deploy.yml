@@ -8,15 +8,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    #   - uses: actions/checkout@v4
-    #   - uses: actions/setup-node@v4
-    #     with:
-    #       node-version: 20
-    #       cache: "npm"
-    #   - name: Install and Build
-    #     run: |
-    #       npm ci
-    #       npm run build
       - name: Set Node.js 20.x
         uses: actions/setup-node@v4
         with:
@@ -26,13 +17,11 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install # will run `yarn install` command
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
       - name: Build production bundle
         uses: borales/actions-yarn@v4
         with:
           cmd: build # will run `yarn build` command
-        working-directory: ./todo-app
+          dir: ./todo-app
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
