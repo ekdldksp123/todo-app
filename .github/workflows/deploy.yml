@@ -32,7 +32,7 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: build # will run `yarn build` command
-          working-directory: ./todo-app
+        working-directory: ./todo-app
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
