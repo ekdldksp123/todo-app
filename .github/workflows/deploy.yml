@@ -19,7 +19,7 @@ jobs:
       - name: Run install
         uses: borales/actions-yarn@v4
         with:
-          cmd: install --frozen-lockfile # will run `yarn install` command
+          cmd: install # will run `yarn install` command
         # env:
         #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
           
